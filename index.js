@@ -1,4 +1,4 @@
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const express = require("express");
 const bodyParser = require("body-parser");
 var cors = require("cors");
@@ -77,6 +77,23 @@ async function run() {
       const query = { ticketCreatedBy: userEmail };
       const tickets = await ticketsCollection.find(query).toArray();
       res.send(tickets);
+    });
+
+    // get all the approved tickets by Admin
+    app.get("/approved-tickets", async (req, res) => {
+      const query = {
+        status: "pending",
+      };
+      const tickets = await ticketsCollection.find(query).toArray();
+      res.send(tickets);
+    });
+
+    // get ticket details
+    app.get("/ticket/:id", async (req, res) => {
+      const ticketId = new ObjectId(req.params.id);
+      const query = { _id: ticketId };
+      const ticketDetail = await ticketsCollection.findOne(query);
+      res.send(ticketDetail);
     });
 
     await client.db("admin").command({ ping: 1 });
