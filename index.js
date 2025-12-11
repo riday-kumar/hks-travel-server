@@ -37,6 +37,14 @@ async function run() {
     const database = client.db("traveTicketDB");
     const usersCollection = database.collection("users");
 
+    // get spacific user by email
+    app.get("/user", async (req, res) => {
+      const userEmail = req.query.email;
+      const query = { email: userEmail };
+      const currentUser = await usersCollection.findOne(query);
+      res.send(currentUser);
+    });
+
     // create users
     app.post("/users", async (req, res) => {
       const user = req.body;
