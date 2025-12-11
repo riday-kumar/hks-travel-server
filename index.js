@@ -36,6 +36,7 @@ async function run() {
     await client.connect();
     const database = client.db("traveTicketDB");
     const usersCollection = database.collection("users");
+    const ticketsCollection = database.collection("tickets");
 
     // get spacific user by email
     app.get("/user", async (req, res) => {
@@ -58,6 +59,15 @@ async function run() {
       }
 
       const result = await usersCollection.insertOne(user);
+      res.send(result);
+    });
+
+    // add Ticket api
+    app.post("/add-ticket", async (req, res) => {
+      const ticket = req.body;
+      ticket.status = "pending";
+      ticket.createdAt = new Date();
+      const result = await ticketsCollection.insertOne(ticket);
       res.send(result);
     });
 
