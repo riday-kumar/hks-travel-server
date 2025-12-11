@@ -71,6 +71,14 @@ async function run() {
       res.send(result);
     });
 
+    // get tickets according to the different VENDOR
+    app.get("/tickets", async (req, res) => {
+      const userEmail = req.query.email;
+      const query = { ticketCreatedBy: userEmail };
+      const tickets = await ticketsCollection.find(query).toArray();
+      res.send(tickets);
+    });
+
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged deployment. successfully connected to MongoDB!");
   } finally {
