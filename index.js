@@ -123,6 +123,19 @@ async function run() {
       res.send(result);
     });
 
+    // get all the bookings (success ---> now 'pending')
+    app.get("/my-bookings", async (req, res) => {
+      const email = req.query.email;
+
+      const query = {
+        userEmail: email,
+        status: "pending",
+      };
+      const cursor = bookingCollection.find(query);
+      const result = await cursor.toArray();
+      res.send(result);
+    });
+
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged deployment. successfully connected to MongoDB!");
   } finally {
