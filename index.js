@@ -37,6 +37,7 @@ async function run() {
     const database = client.db("traveTicketDB");
     const usersCollection = database.collection("users");
     const ticketsCollection = database.collection("tickets");
+    const bookingCollection = database.collection("bookings");
 
     // get spacific user by email
     app.get("/user", async (req, res) => {
@@ -94,6 +95,32 @@ async function run() {
       const query = { _id: ticketId };
       const ticketDetail = await ticketsCollection.findOne(query);
       res.send(ticketDetail);
+    });
+
+    // create booking collection
+    app.post("/add-booking", async (req, res) => {
+      const booking = req.body;
+      booking.status = "pending";
+      booking.createdAt = new Date();
+      const result = await bookingCollection.insertOne(booking);
+      // update ticket remaining from ticket collection
+      const bookedTicketQuantity = booking.bookedQuantity;
+      const ticketId = new ObjectId(booking.ticketId);
+      const filter = {
+        _id: ticketId,
+        remainingTicket: { $gte: bookedTicketQuantity },
+      };
+      const updateTicketData = {
+        $inc: {
+          remainingTicket: -bookedTicketQuantity,
+        },
+      };
+      const updateResult = await ticketsCollection.updateOne(
+        filter,
+        updateTicketData
+      );
+
+      res.send(result);
     });
 
     await client.db("admin").command({ ping: 1 });
