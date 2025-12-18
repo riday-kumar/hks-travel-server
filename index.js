@@ -123,7 +123,7 @@ async function run() {
       res.send(result);
     });
 
-    // get all the bookings (success ---> now 'pending')
+    // get all the bookings according to the email (status: success ---> now 'pending')
     app.get("/my-bookings", async (req, res) => {
       const email = req.query.email;
 
@@ -133,6 +133,26 @@ async function run() {
       };
       const cursor = bookingCollection.find(query);
       const result = await cursor.toArray();
+      res.send(result);
+    });
+
+    // get all the bookings for vendor
+    app.get("/all-bookings", async (req, res) => {
+      const cursor = bookingCollection.find();
+      const result = await cursor.toArray();
+      res.send(result);
+    });
+
+    // accept booking
+    app.patch(`/booking-accept/:id`, async (req, res) => {
+      const ticketId = new ObjectId(req.params.id);
+      const query = { _id: ticketId };
+      const updateStatus = {
+        $set: {
+          status: "success",
+        },
+      };
+      const result = await bookingCollection.updateOne(query, updateStatus);
       res.send(result);
     });
 
