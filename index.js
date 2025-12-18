@@ -215,6 +215,41 @@ async function run() {
       res.send(result);
     });
 
+    // advertise accept
+    app.patch(`/advertise-accept/:id`, async (req, res) => {
+      const ticketId = new ObjectId(req.params.id);
+      const query = { _id: ticketId };
+      const updateStatus = {
+        $set: {
+          advertisement: "Accept",
+        },
+      };
+      const result = await ticketsCollection.updateOne(query, updateStatus);
+      res.send(result);
+    });
+
+    // advertise reject
+    app.patch(`/advertise-reject/:id`, async (req, res) => {
+      const ticketId = new ObjectId(req.params.id);
+      const query = { _id: ticketId };
+      const updateStatus = {
+        $set: {
+          advertisement: "Reject",
+        },
+      };
+      const result = await ticketsCollection.updateOne(query, updateStatus);
+      res.send(result);
+    });
+
+    // advertisement tickets
+    app.get("/advertisement", async (req, res) => {
+      const query = {
+        advertisement: "Accept",
+      };
+      const tickets = await ticketsCollection.find(query).toArray();
+      res.send(tickets);
+    });
+
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged deployment. successfully connected to MongoDB!");
   } finally {
