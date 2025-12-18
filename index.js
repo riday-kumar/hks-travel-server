@@ -155,6 +155,50 @@ async function run() {
       const result = await bookingCollection.updateOne(query, updateStatus);
       res.send(result);
     });
+    // reject booking
+    app.patch(`/booking-reject/:id`, async (req, res) => {
+      const ticketId = new ObjectId(req.params.id);
+      const query = { _id: ticketId };
+      const updateStatus = {
+        $set: {
+          status: "reject",
+        },
+      };
+      const result = await bookingCollection.updateOne(query, updateStatus);
+      res.send(result);
+    });
+
+    // all tickets for admin
+    app.get("/all-tickets", async (req, res) => {
+      const cursor = ticketsCollection.find();
+      const result = await cursor.toArray();
+      res.send(result);
+    });
+
+    // accept ticket
+    app.patch(`/ticket-accept/:id`, async (req, res) => {
+      const ticketId = new ObjectId(req.params.id);
+      const query = { _id: ticketId };
+      const updateStatus = {
+        $set: {
+          status: "Accept",
+        },
+      };
+      const result = await ticketsCollection.updateOne(query, updateStatus);
+      res.send(result);
+    });
+    // reject ticket
+    app.patch(`/ticket-reject/:id`, async (req, res) => {
+      const ticketId = new ObjectId(req.params.id);
+      const query = { _id: ticketId };
+      const updateStatus = {
+        $set: {
+          status: "Reject",
+        },
+      };
+      const result = await ticketsCollection.updateOne(query, updateStatus);
+      res.send(result);
+    });
 
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged deployment. successfully connected to MongoDB!");
