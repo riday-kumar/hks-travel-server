@@ -67,6 +67,7 @@ async function run() {
     app.post("/add-ticket", async (req, res) => {
       const ticket = req.body;
       ticket.status = "pending";
+      ticket.advertisement = "pending";
       ticket.createdAt = new Date();
       const result = await ticketsCollection.insertOne(ticket);
       res.send(result);
@@ -83,7 +84,7 @@ async function run() {
     // get all the approved tickets by Admin
     app.get("/approved-tickets", async (req, res) => {
       const query = {
-        status: "pending",
+        status: "Accept",
       };
       const tickets = await ticketsCollection.find(query).toArray();
       res.send(tickets);
@@ -187,6 +188,7 @@ async function run() {
       const result = await ticketsCollection.updateOne(query, updateStatus);
       res.send(result);
     });
+
     // reject ticket
     app.patch(`/ticket-reject/:id`, async (req, res) => {
       const ticketId = new ObjectId(req.params.id);
@@ -197,6 +199,19 @@ async function run() {
         },
       };
       const result = await ticketsCollection.updateOne(query, updateStatus);
+      res.send(result);
+    });
+
+    // latest ticket
+    app.get("/latest-tickets", async (req, res) => {
+      const query = {
+        status: "Accept",
+      };
+      const cursor = ticketsCollection
+        .find(query)
+        .sort({ createdAt: -1 })
+        .limit(6);
+      const result = await cursor.toArray();
       res.send(result);
     });
 
